@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scored — Curated AI Music Licensing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#09091f;--bg2:#0d0e26;--bg3:#11122e;--surface:#151630;
+  --border:rgba(180,160,100,0.12);--border2:rgba(180,160,100,0.28);
+  --gold:#c8a84b;--gold2:#e2c97e;--gold3:rgba(200,168,75,0.08);
+  --text:#ede8dc;--text2:#8e8a7c;--text3:#4a4840;
+  --blue:#6b8ae0;--green:#50aa78;--red:#e05c4b;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(9,9,31,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--gold);cursor:pointer}
+.nav-center{display:flex;gap:0}
+.nav-tab{padding:8px 24px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Jost',sans-serif}
+.nav-tab:hover{color:var(--text2)}
+.nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-right{display:flex;gap:10px;align-items:center}
+
+.btn{padding:9px 22px;font-family:'Jost',sans-serif;font-size:10px;font-weight:400;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;border:none}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{background:var(--gold);color:var(--bg);font-weight:500}
+.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:transparent;border:none;color:var(--text3);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:9px 16px;transition:color 0.2s}
+.btn-ghost:hover{color:var(--text)}
+.btn-sm{padding:7px 14px;font-size:9px;letter-spacing:1.5px}
+
+.page{display:none}
+.page.active{display:block}
+
+.hero{padding:88px 48px 76px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-200px;right:-100px;width:700px;height:700px;background:radial-gradient(circle at 60% 40%,rgba(200,168,75,0.05) 0%,rgba(80,80,200,0.04) 40%,transparent 70%);pointer-events:none}
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.ey-rule{width:28px;height:1px;background:var(--gold);opacity:0.5}
+.ey-txt{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+h1.hero-h{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,7vw,82px);font-weight:300;line-height:1.05;letter-spacing:-1px;max-width:760px;margin-bottom:24px}
+h1.hero-h em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:15px;color:var(--text2);font-weight:300;max-width:500px;line-height:1.8;margin-bottom:40px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:68px}
+.hero-stats{display:flex;gap:52px;padding-top:32px;border-top:1px solid var(--border)}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:var(--gold);line-height:1}
+.stat-key{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:5px}
+
+.section{padding:56px 48px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;letter-spacing:-0.5px}
+
+.search-wrap{display:flex;gap:10px;margin-bottom:16px}
+.search-inp{flex:1;background:var(--bg2);border:1px solid var(--border);padding:12px 18px;color:var(--text);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;transition:border-color 0.2s}
+.search-inp:focus{border-color:var(--border2)}
+.search-inp::placeholder{color:var(--text3)}
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+.chip{padding:6px 15px;border:1px solid var(--border);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;transition:all 0.2s;background:transparent;font-family:'Jost',sans-serif}
+.chip:hover,.chip.active{border-color:var(--gold);color:var(--gold);background:var(--gold3)}
+
+.track-list{display:flex;flex-direction:column;gap:1px}
+.track{display:grid;grid-template-columns:44px 1fr auto auto auto;align-items:center;gap:18px;padding:17px 20px;background:var(--bg2);border:1px solid transparent;cursor:pointer;transition:all 0.17s}
+.track:hover{background:var(--surface);border-color:var(--border)}
+.track-idx{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--text3);text-align:center;position:relative;min-width:24px}
+.track-num{transition:opacity 0.15s}
+.track-arrow{display:none;color:var(--gold);font-size:12px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.track:hover .track-num{opacity:0}
+.track:hover .track-arrow{display:block}
+.t-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;margin-bottom:3px}
+.t-meta{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.track-tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{padding:3px 9px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.tag-genre{border:1px solid rgba(200,168,75,0.2);color:var(--gold)}
+.tag-mood{border:1px solid rgba(107,138,224,0.3);color:var(--blue)}
+.tag-scene{border:1px solid rgba(80,170,120,0.3);color:var(--green)}
+.tag-verify{background:var(--gold3);border:1px solid rgba(200,168,75,0.2);color:var(--gold)}
+.stars{color:var(--gold);font-size:10px;letter-spacing:1px;margin-bottom:2px}
+.t-price{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);text-align:right}
+.t-price-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);text-align:right}
+
+.collab-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.collab-card{background:var(--bg2);border:1px solid transparent;padding:26px;transition:all 0.2s}
+.collab-card:hover{background:var(--surface);border-color:var(--border)}
+.c-badge{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.c-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.c-type{font-size:9px;letter-spacing:2px;text-transform:uppercase}
+.c-type.s-singer{color:var(--blue)}
+.c-type.s-creator{color:var(--green)}
+.c-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;margin-bottom:6px}
+.c-meta{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.c-desc{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300;margin-bottom:18px}
+.c-foot{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border)}
+
+.collab-banner{background:var(--bg2);border:1px solid var(--border);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.cb-text h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:5px}
+.cb-text p{font-size:13px;color:var(--text2);font-weight:300}
+
+.pitch-banner{background:var(--bg2);border:1px solid var(--border);padding:56px 48px;text-align:center;margin:0 48px 56px;position:relative;overflow:hidden}
+.pb-glow{position:absolute;bottom:-150px;left:50%;transform:translateX(-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(200,168,75,0.05) 0%,transparent 65%);pointer-events:none}
+.pitch-banner h2{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;margin-bottom:12px}
+.pitch-banner p{font-size:14px;color:var(--text2);max-width:460px;margin:0 auto 32px;line-height:1.8;font-weight:300}
+.pb-feats{display:flex;justify-content:center;gap:52px;margin-bottom:36px}
+.pbf-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold);font-weight:300;line-height:1}
+.pbf-txt{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:5px}
+.pb-note{font-size:11px;color:var(--text3);margin-top:14px;letter-spacing:0.5px}
+
+.dashboard{padding:40px 48px}
+.dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.dash-greeting{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300}
+.dash-greeting span{color:var(--gold);font-style:italic}
+.dash-sub{font-size:12px;color:var(--text3);margin-top:5px;letter-spacing:1px;text-transform:uppercase}
+.dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:32px}
+.ds-card{background:var(--bg2);padding:24px;border:1px solid var(--border)}
+.ds-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--gold);line-height:1;margin-bottom:4px}
+.ds-key{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.dash-sec-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.dash-sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.dash-section{margin-bottom:36px}
+.tmgmt-row{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:16px;padding:16px 20px;background:var(--bg2);border:1px solid transparent;transition:all 0.17s;margin-bottom:1px}
+.tmgmt-row:hover{background:var(--surface);border-color:var(--border)}
+.tmgmt-title{font-family:'Cormorant Garamond',serif;font-size:16px;margin-bottom:3px}
+.tmgmt-meta{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.status-badge{padding:4px 12px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-family:'Jost',sans-serif}
+.status-live{background:rgba(80,170,120,0.12);border:1px solid rgba(80,170,120,0.3);color:var(--green)}
+.status-review{background:rgba(200,168,75,0.1);border:1px solid rgba(200,168,75,0.25);color:var(--gold)}
+.sale-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:14px 20px;background:var(--bg2);border:1px solid transparent;margin-bottom:1px}
+.sale-row:hover{background:var(--surface)}
+.sale-title{font-size:14px;margin-bottom:3px}
+.sale-meta{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.sale-amt{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold)}
+
+.buyer-tabs{display:flex;gap:2px;margin-bottom:24px}
+.buyer-tab{padding:10px 20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);cursor:pointer;background:var(--bg2);border:1px solid transparent;transition:all 0.2s;font-family:'Jost',sans-serif}
+.buyer-tab.active{color:var(--gold);border-color:rgba(200,168,75,0.2);background:var(--gold3)}
+.saved-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.saved-card{background:var(--bg2);padding:20px;border:1px solid transparent;transition:all 0.2s;cursor:pointer}
+.saved-card:hover{background:var(--surface);border-color:var(--border)}
+.saved-title{font-family:'Cormorant Garamond',serif;font-size:16px;margin-bottom:4px}
+.saved-meta{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.license-row{display:grid;grid-template-columns:1fr auto auto auto;gap:16px;align-items:center;padding:16px 20px;background:var(--bg2);margin-bottom:1px;border:1px solid transparent}
+.license-row:hover{background:var(--surface)}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(5,5,20,0.92);backdrop-filter:blur(10px);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);width:680px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:44px;position:relative;animation:rise 0.26s ease}
+@keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-x{position:absolute;top:18px;right:22px;background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;transition:color 0.2s}
+.modal-x:hover{color:var(--text)}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;letter-spacing:-0.5px;margin-bottom:5px}
+.modal-sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:20px}
+.modal-tags{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+.modal-desc{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:22px;font-weight:300}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;padding-top:18px;border-top:1px solid var(--border)}
+
+.auth-modal{max-width:440px}
+.auth-logo{font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+.role-select{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.role-card{border:1px solid var(--border);padding:20px;cursor:pointer;transition:all 0.2s;text-align:center}
+.role-card:hover,.role-card.sel{border-color:var(--gold);background:var(--gold3)}
+.role-icon{font-size:22px;margin-bottom:8px}
+.role-name{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:4px}
+.role-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.role-card.sel .role-name{color:var(--gold)}
+.auth-divider{display:flex;align-items:center;gap:14px;margin:20px 0;font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.player{background:var(--bg3);border:1px solid var(--border);padding:16px 20px;margin-bottom:22px}
+.divider{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.player-row{display:flex;align-items:center;gap:14px}
+.play-btn{width:36px;height:36px;border-radius:50%;background:var(--gold);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--bg);font-size:12px;transition:background 0.2s;flex-shrink:0}
+.play-btn:hover{background:var(--gold2)}
+.progress{flex:1;height:2px;background:var(--bg);cursor:pointer}
+.pf{height:100%;background:var(--gold);width:0%;transition:width 0.1s}
+.time-lbl{font-size:11px;letter-spacing:1px;color:var(--text3);min-width:76px;text-align:right}
+
+.lyrics-wrap{background:var(--bg3);border:1px solid var(--border);padding:22px 26px 18px;margin-bottom:22px;max-height:200px;overflow-y:auto}
+.lyric-sec{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);margin:12px 0 5px}
+.lyric-sec:first-child{margin-top:0}
+.lyric-ln{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;font-style:italic;line-height:2;color:var(--text3);transition:all 0.3s;cursor:pointer}
+.lyric-ln:hover{color:var(--text)}
+.lyric-ln.active{color:var(--gold2);font-size:17px}
+.lyric-ln.passed{color:var(--text2)}
+
+.lic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.lic-card{border:1px solid var(--border);padding:18px;cursor:pointer;transition:all 0.2s;position:relative}
+.lic-card:hover,.lic-card.sel{border-color:var(--gold);background:var(--gold3)}
+.lic-card.sel::after{content:'✓';position:absolute;top:12px;right:12px;color:var(--gold);font-size:11px}
+.lic-name{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:8px}
+.lic-price{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--gold);margin-bottom:6px}
+.lic-desc{font-size:11px;color:var(--text3);line-height:1.6;font-weight:300}
+
+.form-group{margin-bottom:16px}
+.form-lbl{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.form-req{color:var(--gold)}
+.form-inp,.form-sel,.form-ta{width:100%;background:var(--bg3);border:1px solid var(--border);padding:11px 15px;color:var(--text);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;transition:border-color 0.2s}
+.form-inp:focus,.form-sel:focus,.form-ta:focus{border-color:var(--border2)}
+.form-sel{appearance:none;cursor:pointer}
+.form-ta{resize:vertical;min-height:72px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:10px;color:var(--text3);margin-top:5px}
+.form-err{font-size:10px;color:var(--red);margin-top:5px;display:none}
+.form-err.show{display:block}
+.up-zone{border:1px dashed var(--border2);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg3)}
+.up-zone:hover{border-color:var(--gold);background:var(--gold3)}
+.up-zone-lbl{font-size:12px;color:var(--text2);margin-bottom:3px}
+.up-zone-hint{font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--text3);font-size:12px;letter-spacing:2px;text-transform:uppercase;background:var(--bg2)}
+.empty-state{padding:48px;text-align:center;color:var(--text3);font-size:13px;background:var(--bg2);letter-spacing:0.5px}
+
+footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;justify-content:space-between;align-items:center}
+.foot-logo{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:var(--gold);opacity:0.45}
+.foot-txt{font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase}
+
+.toast{position:fixed;bottom:28px;right:28px;background:var(--surface);border:1px solid var(--border2);color:var(--text2);padding:12px 22px;font-size:12px;letter-spacing:0.5px;z-index:999;display:none;animation:toastin 0.28s ease;max-width:360px}
+.toast.show{display:block}
+@keyframes toastin{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo" onclick="goHome()">Scored</div>
+  <div class="nav-center">
+    <button class="nav-tab active" id="ntab-catalog" onclick="switchMainTab('catalog')">Catalog</button>
+    <button class="nav-tab" id="ntab-collab" onclick="switchMainTab('collab')">Collab</button>
+  </div>
+  <div class="nav-right" id="navRight">
+    <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
+    <button class="btn btn-outline btn-sm" onclick="openAuth('buyer')">I'm a Buyer</button>
+    <button class="btn btn-gold btn-sm" onclick="openPitch()">Submit Track</button>
+  </div>
+</nav>
+
+<!-- CATALOG -->
+<div class="page active" id="page-catalog">
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="eyebrow"><div class="ey-rule"></div><div class="ey-txt">Curated · Rights-Clear · Early Access</div></div>
+    <h1 class="hero-h">The licensing home<br>for <em>original</em> AI music</h1>
+    <p class="hero-sub">Every track on Scored is created by someone who holds genuine copyright on their lyrics or composition. Built for music supervisors, game studios, and creative directors.</p>
+    <div class="hero-cta">
+      <button class="btn btn-gold" onclick="document.getElementById('catalog-section').scrollIntoView({behavior:'smooth'})">Browse Catalog</button>
+      <button class="btn btn-outline" onclick="openPitch()">Submit Your Music</button>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-val" id="stat-tracks">—</div><div class="stat-key">Tracks Available</div></div>
+      <div><div class="stat-val" id="stat-creators">—</div><div class="stat-key">Verified Creators</div></div>
+      <div><div class="stat-val">$50</div><div class="stat-key">Min. License</div></div>
+      <div><div class="stat-val">100%</div><div class="stat-key">Copyright-Declared</div></div>
+    </div>
+  </section>
+
+  <section class="section" id="catalog-section">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt">/ Catalog</div></div>
+        <div class="sec-title">Featured Tracks</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-inp" id="searchInput" placeholder="Search genre, mood, style..." oninput="filterTracks(this.value)">
+    </div>
+    <div class="filters">
+      <button class="chip active" onclick="setFilter(this,'all')">All</button>
+      <button class="chip" onclick="setFilter(this,'Electronic')">Electronic</button>
+      <button class="chip" onclick="setFilter(this,'Rock')">Rock</button>
+      <button class="chip" onclick="setFilter(this,'Folk')">Folk</button>
+      <button class="chip" onclick="setFilter(this,'Hip-Hop')">Hip-Hop</button>
+      <button class="chip" onclick="setFilter(this,'R&B')">R&B</button>
+      <button class="chip" onclick="setFilter(this,'Classical')">Classical</button>
+      <button class="chip" onclick="setFilter(this,'Cinematic')">Cinematic</button>
+    </div>
+    <div class="track-list" id="trackList"><div class="loading">Loading tracks...</div></div>
+  </section>
+
+  <div class="pitch-banner">
+    <div class="pb-glow"></div>
+    <div class="eyebrow" style="justify-content:center;margin-bottom:18px"><div class="ey-rule"></div><div class="ey-txt">For Creators</div><div class="ey-rule"></div></div>
+    <h2>Your music.<br><em style="color:var(--gold)">Your rights.</em></h2>
+    <p>Scored only accepts work where you hold genuine copyright on lyrics or composition. We review every submission. Accepted tracks start at $50.</p>
+    <div class="pb-feats">
+      <div><div class="pbf-num">01</div><div class="pbf-txt">Editorial review<br>every submission</div></div>
+      <div><div class="pbf-num">02</div><div class="pbf-txt">1–5 star<br>quality rating</div></div>
+      <div><div class="pbf-num">03</div><div class="pbf-txt">Auto-generated<br>license contract</div></div>
+      <div><div class="pbf-num">04</div><div class="pbf-txt">Min. $50<br>per license</div></div>
+    </div>
+    <button class="btn btn-gold" style="padding:13px 38px;font-size:10px" onclick="openPitch()">Submit Your Track</button>
+    <div class="pb-note">Works via Suno, Udio, or any tool — original lyrics or composition is what counts.</div>
+  </div>
+</div>
+
+<!-- COLLAB -->
+<div class="page" id="page-collab">
+  <section class="section">
+    <div class="sec-head">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt">/ Collab</div></div>
+        <div class="sec-title">Creator × Singer Matching</div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="openCollabPost()">Post a Request →</button>
+    </div>
+    <p style="font-size:14px;color:var(--text2);max-width:540px;line-height:1.8;margin-bottom:32px;font-weight:300">AI creators with strong lyrics or compositions seeking vocalists — and independent singers seeking original material.</p>
+    <div class="collab-banner">
+      <div class="cb-text"><h3>Have a track that needs a voice?</h3><p>Post your request and connect with independent singers worldwide.</p></div>
+      <button class="btn btn-gold btn-sm" onclick="openCollabPost()">Post Request</button>
+    </div>
+    <div class="collab-grid" id="collabGrid"><div class="loading" style="grid-column:1/-1">Loading requests...</div></div>
+  </section>
+</div>
+
+<!-- CREATOR DASHBOARD -->
+<div class="page" id="page-creator-dash">
+  <div class="dashboard">
+    <div class="dash-head">
+      <div>
+        <div class="dash-greeting">Welcome back, <span id="dash-name">—</span></div>
+        <div class="dash-sub">Creator Dashboard</div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="openPitch()">+ Submit New Track</button>
+    </div>
+    <div class="dash-stats">
+      <div class="ds-card"><div class="ds-val" id="d-earned">$0</div><div class="ds-key">Total Earned</div></div>
+      <div class="ds-card"><div class="ds-val" id="d-sold">0</div><div class="ds-key">Licenses Sold</div></div>
+      <div class="ds-card"><div class="ds-val" id="d-live">0</div><div class="ds-key">Tracks Live</div></div>
+      <div class="ds-card"><div class="ds-val" id="d-review">0</div><div class="ds-key">Under Review</div></div>
+    </div>
+    <div class="dash-section">
+      <div class="dash-sec-title">My Tracks</div>
+      <div id="myTracks"><div class="loading">Loading your tracks...</div></div>
+    </div>
+    <div class="dash-section">
+      <div class="dash-sec-title">Recent Sales</div>
+      <div id="mySales"><div class="empty-state">No sales yet — your first one is coming.</div></div>
+    </div>
+    <div style="padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">
+      <button class="btn-ghost" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- BUYER DASHBOARD -->
+<div class="page" id="page-buyer-dash">
+  <div class="dashboard">
+    <div class="dash-head">
+      <div>
+        <div class="dash-greeting">Welcome, <span id="buyer-dash-name">—</span></div>
+        <div class="dash-sub">Buyer Dashboard</div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="switchMainTab('catalog');showPage('catalog')">Browse Catalog →</button>
+    </div>
+    <div class="dash-stats">
+      <div class="ds-card"><div class="ds-val" id="b-licenses">0</div><div class="ds-key">Licenses Owned</div></div>
+      <div class="ds-card"><div class="ds-val" id="b-spent">$0</div><div class="ds-key">Total Spent</div></div>
+      <div class="ds-card"><div class="ds-val" id="b-saved">0</div><div class="ds-key">Saved Tracks</div></div>
+      <div class="ds-card"><div class="ds-val">—</div><div class="ds-key">Account Type</div></div>
+    </div>
+    <div class="buyer-tabs">
+      <button class="buyer-tab active" onclick="switchBuyerTab(this,'saved')">Saved Tracks</button>
+      <button class="buyer-tab" onclick="switchBuyerTab(this,'licenses')">My Licenses</button>
+    </div>
+    <div id="buyer-saved"><div class="loading">Loading saved tracks...</div></div>
+    <div id="buyer-licenses" style="display:none"><div class="loading">Loading licenses...</div></div>
+    <div style="padding-top:24px;border-top:1px solid var(--border);margin-top:32px;display:flex;justify-content:flex-end">
+      <button class="btn-ghost" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot-logo">Scored</div>
+  <div class="foot-txt">© 2025 Scored — Early Access Beta · scored.fm</div>
+</footer>
+
+<!-- TRACK MODAL -->
+<div class="overlay" id="trackModal">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('trackModal')">✕</button>
+    <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt" id="mStars">★★★★★</div></div>
+    <div class="modal-title" id="mTitle">—</div>
+    <div class="modal-sub" id="mCreator">—</div>
+    <div class="modal-tags" id="mTags"></div>
+    <div class="player">
+      <div class="divider">Preview</div>
+      <div class="player-row">
+        <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+        <div class="progress" onclick="seekTo(event)"><div class="pf" id="pFill"></div></div>
+        <span class="time-lbl" id="timeLbl">0:00 / 2:45</span>
+      </div>
+    </div>
+    <div class="divider">Lyrics — Copyright Verified ✓</div>
+    <div class="lyrics-wrap" id="lyricsWrap"></div>
+    <div class="divider" style="margin-top:20px">Select License</div>
+    <div class="lic-grid">
+      <div class="lic-card sel" onclick="selLic(this,'non-exclusive')">
+        <div class="lic-name">Non-Exclusive</div>
+        <div class="lic-price" id="pNonEx">$50</div>
+        <div class="lic-desc">One project. Creator may license to others.</div>
+      </div>
+      <div class="lic-card" onclick="selLic(this,'exclusive')">
+        <div class="lic-name">Exclusive Buyout</div>
+        <div class="lic-price" id="pEx">$299</div>
+        <div class="lic-desc">Full exclusive rights. Stems included.</div>
+      </div>
+    </div>
+    <div class="divider">Scene Notes</div>
+    <p class="modal-desc" id="mDesc">—</p>
+    <div class="modal-foot">
+      <button class="btn btn-outline btn-sm" onclick="saveTrack()">Save ♡</button>
+      <button class="btn btn-outline" onclick="closeModal('trackModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="purchaseLicense()">Purchase License →</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="authModal">
+  <div class="modal auth-modal">
+    <button class="modal-x" onclick="closeModal('authModal')">✕</button>
+    <div class="auth-logo">Scored</div>
+    <div id="authView-choose">
+      <div class="modal-title" style="font-size:24px;margin-bottom:6px">Join Scored</div>
+      <div class="modal-sub">I am a...</div>
+      <div class="role-select">
+        <div class="role-card" onclick="selectRole('creator',this)">
+          <div class="role-icon">🎵</div>
+          <div class="role-name">Creator</div>
+          <div class="role-desc">I make AI music and hold copyright on my lyrics or compositions</div>
+        </div>
+        <div class="role-card" onclick="selectRole('buyer',this)">
+          <div class="role-icon">🎬</div>
+          <div class="role-name">Buyer</div>
+          <div class="role-desc">I license music for film, games, brands, or creative projects</div>
+        </div>
+      </div>
+      <div class="auth-divider">or sign in to existing account</div>
+      <div class="form-group"><label class="form-lbl">Email</label><input class="form-inp" type="email" id="si-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label class="form-lbl">Password</label><input class="form-inp" type="password" id="si-pass" placeholder="••••••••"></div>
+      <div class="form-err" id="si-err">Invalid email or password.</div>
+      <div class="modal-foot" style="padding-top:16px;border:none;justify-content:space-between">
+        <button class="btn-ghost" onclick="closeModal('authModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="signIn()">Sign In →</button>
+      </div>
+    </div>
+    <div id="authView-creator" style="display:none">
+      <div class="modal-title" style="font-size:24px;margin-bottom:6px">Create Creator Account</div>
+      <div class="modal-sub" style="margin-bottom:20px">Build your profile and start submitting tracks</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-lbl">Creator Name <span class="form-req">*</span></label><input class="form-inp" id="c-name" placeholder="Stage name / alias"></div>
+        <div class="form-group"><label class="form-lbl">Email <span class="form-req">*</span></label><input class="form-inp" type="email" id="c-email" placeholder="your@email.com"></div>
+      </div>
+      <div class="form-group"><label class="form-lbl">Password <span class="form-req">*</span></label><input class="form-inp" type="password" id="c-pass" placeholder="Min. 6 characters"></div>
+      <div class="form-group"><label class="form-lbl">Primary Genre</label><select class="form-sel" id="c-genre"><option value="">Select your main genre</option><option>Electronic</option><option>Rock</option><option>Folk / Acoustic</option><option>Hip-Hop / Rap</option><option>R&B / Soul</option><option>Classical / Orchestral</option><option>Jazz</option><option>Pop</option><option>World Music</option><option>Chinese Folk / 古风</option></select></div>
+      <div class="form-err" id="c-err">Please fill in all required fields.</div>
+      <div class="modal-foot" style="border:none;padding-top:8px;justify-content:space-between">
+        <button class="btn-ghost" onclick="showAuthView('choose')">← Back</button>
+        <button class="btn btn-gold" onclick="signUp('creator')">Create Account →</button>
+      </div>
+    </div>
+    <div id="authView-buyer" style="display:none">
+      <div class="modal-title" style="font-size:24px;margin-bottom:6px">Create Buyer Account</div>
+      <div class="modal-sub" style="margin-bottom:20px">Save tracks, manage licenses, download contracts</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-lbl">Name / Company <span class="form-req">*</span></label><input class="form-inp" id="b-name" placeholder="Your name or studio name"></div>
+        <div class="form-group"><label class="form-lbl">Email <span class="form-req">*</span></label><input class="form-inp" type="email" id="b-email" placeholder="your@email.com"></div>
+      </div>
+      <div class="form-group"><label class="form-lbl">Password <span class="form-req">*</span></label><input class="form-inp" type="password" id="b-pass" placeholder="Min. 6 characters"></div>
+      <div class="form-group"><label class="form-lbl">Buyer Type</label><select class="form-sel" id="b-type"><option value="">How will you use the music?</option><option>Film / TV Production</option><option>Game Studio</option><option>Animation</option><option>Brand / Advertising</option><option>Podcast / YouTube</option><option>Other</option></select></div>
+      <div class="form-err" id="b-err">Please fill in all required fields.</div>
+      <div class="modal-foot" style="border:none;padding-top:8px;justify-content:space-between">
+        <button class="btn-ghost" onclick="showAuthView('choose')">← Back</button>
+        <button class="btn btn-gold" onclick="signUp('buyer')">Create Account →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PITCH MODAL -->
+<div class="overlay" id="pitchModal">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-x" onclick="closeModal('pitchModal')">✕</button>
+    <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt">Submit Track</div></div>
+    <div class="modal-title" style="font-size:26px;margin-bottom:24px">Pitch Your Music</div>
+    <div class="form-group"><label class="form-lbl">Track Title <span class="form-req">*</span></label><input class="form-inp" id="p-title" placeholder="Name your track"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Creator Name <span class="form-req">*</span></label><input class="form-inp" id="p-creator" placeholder="Stage name / alias"></div>
+      <div class="form-group"><label class="form-lbl">AI Tool Used <span class="form-req">*</span></label><select class="form-sel" id="p-tool"><option value="">Select tool</option><option>Suno</option><option>Udio</option><option>Other</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Genre <span class="form-req">*</span></label><select class="form-sel" id="p-genre"><option value="">Select primary genre</option><option>Electronic</option><option>Rock</option><option>Folk / Acoustic</option><option>Hip-Hop / Rap</option><option>R&B / Soul</option><option>Classical / Orchestral</option><option>Jazz</option><option>Pop</option><option>World Music</option><option>Chinese Folk / 古风</option><option>Other</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Mood <span style="color:var(--text3);font-size:8px">Optional</span></label><select class="form-sel" id="p-mood"><option value="">Select mood</option><option>Dark / Tense</option><option>Uplifting / Epic</option><option>Melancholic</option><option>Playful</option><option>Romantic</option><option>Aggressive</option><option>Peaceful</option></select></div>
+      <div class="form-group"><label class="form-lbl">Scene <span style="color:var(--text3);font-size:8px">Optional</span></label><select class="form-sel" id="p-scene"><option value="">Select scene</option><option>Cinematic / Film</option><option>Game / Interactive</option><option>Animation</option><option>Brand / Commercial</option><option>Trailer / Promo</option></select></div>
+    </div>
+    <div class="form-group">
+      <label class="form-lbl">Copyright Basis <span class="form-req">*</span></label>
+      <select class="form-sel" id="p-copyright"><option value="">Select — at least one required</option><option>Lyrics are my original human-authored work</option><option>Composition / melody is my original human-authored work</option><option>Both lyrics and composition are my original work</option></select>
+      <div class="form-hint">Either lyrics or composition must be your original work.</div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Copyright Proof Screenshot <span class="form-req">*</span></label><div class="up-zone" onclick="showToast('File upload coming in v2 — email pitch@scored.fm for now')"><div class="up-zone-lbl">Click to upload screenshot</div><div class="up-zone-hint">Suno / Udio creation page · max 5MB</div></div></div>
+    <div class="form-group"><label class="form-lbl">Scene Description <span style="color:var(--text3);font-size:8px">Optional</span></label><textarea class="form-ta" id="p-desc" placeholder="Describe the ideal placement for this track..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Non-Exclusive Price (USD) <span class="form-req">*</span></label><input class="form-inp" type="number" id="p-price-non" placeholder="Min. $50"><div class="form-hint">Minimum $50</div></div>
+      <div class="form-group"><label class="form-lbl">Exclusive Price (USD)</label><input class="form-inp" type="number" id="p-price-ex" placeholder="Min. $299"><div class="form-hint">Optional. Min. $299.</div></div>
+    </div>
+    <div class="form-err" id="p-err">Please fill in all required fields.</div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('pitchModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitPitch()">Submit Pitch →</button>
+    </div>
+  </div>
+</div>
+
+<!-- COLLAB MODAL -->
+<div class="overlay" id="collabModal">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-x" onclick="closeModal('collabModal')">✕</button>
+    <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt">Post Collab</div></div>
+    <div class="modal-title" style="font-size:26px;margin-bottom:24px">Post a Collab Request</div>
+    <div class="form-group"><label class="form-lbl">I am a <span class="form-req">*</span></label><select class="form-sel" id="col-type"><option value="">Select your role</option><option value="seeking-singer">AI Music Creator — seeking a vocalist</option><option value="seeking-creator">Singer / Vocalist — seeking original material</option></select></div>
+    <div class="form-group"><label class="form-lbl">Project Title <span class="form-req">*</span></label><input class="form-inp" id="col-title" placeholder="What are you working on?"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-lbl">Genre <span class="form-req">*</span></label><select class="form-sel" id="col-genre"><option value="">Select genre</option><option>Electronic</option><option>Rock</option><option>Folk</option><option>Hip-Hop</option><option>R&B</option><option>Pop</option><option>Classical</option><option>Chinese Folk / 古风</option><option>Other</option></select></div>
+      <div class="form-group"><label class="form-lbl">Revenue Split</label><select class="form-sel" id="col-split"><option value="">Propose a split</option><option>50 / 50</option><option>60 / 40 (creator)</option><option>70 / 30 (creator)</option><option>Open to discuss</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-lbl">Description <span class="form-req">*</span></label><textarea class="form-ta" id="col-desc" placeholder="Describe the track, the voice you're looking for, the project goal..."></textarea></div>
+    <div class="form-group"><label class="form-lbl">Contact / Demo Link</label><input class="form-inp" id="col-contact" placeholder="Suno link, SoundCloud, email..."></div>
+    <div class="form-err" id="col-err">Please fill in all required fields.</div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('collabModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitCollab()">Post Request →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://qqzqxbxlwfcfdwnomxsj.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Szz6OkMdTd3V8mM4EZy-YQ_ILi2XnEW';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// demo tracks for before real data exists
+const demoTracks = [
+  {id:'demo-1',title:"Paper Lantern Festival",creator_name:"@dajidaly",genre:"Folk",mood:"Uplifting",scene:"Animation",stars:5,bpm:"112 BPM",tool:"Suno",price_non_exclusive:79,price_exclusive:399,description:"Warm strings over mid-tempo folk beat with Chinese pentatonic melody. Animation title sequences, festival scenes, heartwarming brand campaigns.",lyrics:[{s:"[Verse 1]"},{l:"Light a lantern, let it rise above the reeds"},{l:"Write a wish in silver ink on paper leaves"},{l:"Grandmother is laughing at the edge of town"},{l:"All the stars come running when the sun goes down"},{s:"[Chorus]"},{l:"Float away, float away, little paper light"},{l:"Carry what we could not say into the night"},{l:"Float away, float away, we will find you still"},{l:"Painted on the winter sky above the hill"}]},
+  {id:'demo-2',title:"Hollow Signal",creator_name:"@neonvoid_music",genre:"Electronic",mood:"Dark",scene:"Cinematic",stars:5,bpm:"87 BPM",tool:"Suno",price_non_exclusive:99,price_exclusive:499,description:"Descending synth pads with fractured percussion. Surveillance sequences, dystopian establishing shots, corporate thriller scenes.",lyrics:[{s:"[Verse 1]"},{l:"Static in the walls, a name that hides its face"},{l:"Signals bleeding through the tile and the lace"},{l:"I wrote your number down but the ink turned grey"},{l:"Every door I open leads the other way"},{s:"[Chorus]"},{l:"Hollow signal, hollow light"},{l:"Tell me what you need and I'll be gone by night"},{l:"Hollow signal, burning low"},{l:"Everything I gave you, watch it overflow"}]},
+  {id:'demo-3',title:"Cloud City Sunrise",creator_name:"@dajidaly",genre:"Electronic",mood:"Uplifting",scene:"Brand",stars:4,bpm:"118 BPM",tool:"Suno",price_non_exclusive:65,price_exclusive:320,description:"Bright electronic pop with soaring synth leads. Product launches, travel content, startup brand videos.",lyrics:[{s:"[Verse 1]"},{l:"Packed my only bag before the morning came"},{l:"Traded certainty for something with no name"},{s:"[Chorus]"},{l:"Cloud city sunrise, open your eyes"},{l:"We built this from nothing under neon skies"}]},
+  {id:'demo-4',title:"Iron Meridian",creator_name:"@kratewerk",genre:"Classical",mood:"Dark",scene:"Cinematic",stars:5,bpm:"92 BPM",tool:"Suno",price_non_exclusive:120,price_exclusive:600,description:"Full orchestral arrangement with brass swells and military snare. War dramas, historical epics, strategy game cinematics.",lyrics:[{s:"[Verse 1]"},{l:"We drew the line at the edge of stone"},{l:"Ten thousand men and none came home"},{s:"[Chorus]"},{l:"Iron meridian, hold the line"},{l:"Somewhere between your country and mine"}]},
+];
+
+const demoCollabs = [
+  {id:'c1',request_type:'seeking-singer',title:"Chinese Folk — 求演唱者",creator_name:"@dajidaly",genre:"Folk / 古风",mood:"Uplifting",split:"60/40 (creator)",description:"Original lyrics in Chinese with completed Suno instrumental. Traditional pentatonic melody with modern production."},
+  {id:'c2',request_type:'seeking-creator',title:"R&B Singer — Looking for Original Songs",creator_name:"@velvetvoice",genre:"R&B",mood:"Romantic",split:"Open to discuss",description:"Trained vocalist with 5 years experience. Looking for AI creators with strong original lyrics for R&B / neo-soul direction."},
+  {id:'c3',request_type:'seeking-singer',title:"Dark Electronica — Need Female Voice",creator_name:"@neonvoid_music",genre:"Electronic",mood:"Dark",split:"50/50",description:"Have a completed instrumental with strong original lyrics. Looking for a dark expressive female vocal."},
+];
+
+let allTracks = [];
+let cur = null, playing = false, prog = 0, iv = null, activeF = 'all';
+let selectedLicense = 'non-exclusive';
+let currentUser = null, currentProfile = null;
+
+// ── INIT ──
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+  }
+  await loadTracks();
+  await loadCollabs();
+  await loadStats();
+}
+
+async function loadStats() {
+  const { count: tCount } = await sb.from('tracks').select('*', { count: 'exact', head: true }).eq('status', 'live');
+  const { data: creators } = await sb.from('tracks').select('creator_id').eq('status', 'live');
+  const unique = new Set((creators || []).map(t => t.creator_id)).size;
+  const total = (tCount || 0) + demoTracks.length;
+  const totalCreators = (unique || 0) + 3;
+  document.getElementById('stat-tracks').textContent = total;
+  document.getElementById('stat-creators').textContent = totalCreators;
+}
+
+async function loadTracks() {
+  const { data, error } = await sb.from('tracks').select('*').eq('status', 'live').order('created_at', { ascending: false });
+  const dbTracks = (data || []).map(t => ({ ...t, creator_name: t.creator_name || 'Unknown' }));
+  allTracks = [...demoTracks, ...dbTracks];
+  renderTracks(allTracks);
+}
+
+async function loadCollabs() {
+  const { data } = await sb.from('collab_requests').select('*').order('created_at', { ascending: false });
+  const all = [...demoCollabs, ...(data || [])];
+  renderCollabs(all);
+}
+
+async function loadProfile() {
+  if (!currentUser) return;
+  const { data } = await sb.from('users').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+  if (data) updateNavForUser(data.role, data.name);
+}
+
+// ── TRACKS ──
+function starsHtml(n) { return '★'.repeat(n || 0) + '☆'.repeat(5 - (n || 0)); }
+function tgGenre(t) { return t ? `<span class="tag tag-genre">${t}</span>` : ''; }
+function tgMood(t) { return t ? `<span class="tag tag-mood">${t}</span>` : ''; }
+function tgScene(t) { return t ? `<span class="tag tag-scene">${t}</span>` : ''; }
+function tgVerify() { return `<span class="tag tag-verify">© Declared</span>`; }
+
+function renderTracks(list) {
+  const el = document.getElementById('trackList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state">No tracks found.</div>'; return; }
+  el.innerHTML = list.map((t, i) => `
+    <div class="track" onclick="openTrack('${t.id}')">
+      <div class="track-idx"><span class="track-num">${String(i + 1).padStart(2, '0')}</span><span class="track-arrow">▶</span></div>
+      <div><div class="t-title">${t.title}</div><div class="t-meta">${t.creator_name || ''} · ${t.tool || ''} · ${t.bpm || ''}</div></div>
+      <div class="track-tags">${tgGenre(t.genre)}${tgMood(t.mood)}${tgScene(t.scene)}${tgVerify()}</div>
+      <div style="text-align:right"><div class="stars">${starsHtml(t.stars)}</div><div class="t-price">$${t.price_non_exclusive}</div><div class="t-price-lbl">non-excl.</div></div>
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openTrack('${t.id}')">View →</button>
+    </div>`).join('');
+}
+
+function renderCollabs(list) {
+  const el = document.getElementById('collabGrid');
+  if (!list.length) { el.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No collab requests yet — be the first.</div>'; return; }
+  el.innerHTML = list.map(c => {
+    const isSinger = c.request_type === 'seeking-singer';
+    return `<div class="collab-card">
+      <div class="c-badge"><div class="c-dot" style="background:${isSinger ? 'var(--blue)' : 'var(--green)'}"></div><div class="c-type ${isSinger ? 's-singer' : 's-creator'}">${isSinger ? 'Seeking Vocalist' : 'Singer Seeking Material'}</div></div>
+      <div class="c-title">${c.title}</div>
+      <div class="c-meta">${c.creator_name || ''} · ${c.genre || ''} · Split: ${c.split || 'TBD'}</div>
+      <div class="track-tags" style="margin-bottom:12px">${tgGenre(c.genre)}${tgMood(c.mood)}</div>
+      <div class="c-desc">${c.description}</div>
+      <div class="c-foot"><span class="c-type ${isSinger ? 's-singer' : 's-creator'}">${isSinger ? 'Seeking Vocalist' : 'Seeking Material'}</span><button class="btn btn-outline btn-sm" onclick="showToast('Interest sent!')">Express Interest →</button></div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(el, f) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active'); activeF = f; applyF();
+}
+function applyF() {
+  renderTracks(activeF === 'all' ? allTracks : allTracks.filter(t => t.genre === activeF || t.scene === activeF));
+}
+function filterTracks(q) {
+  const ql = q.toLowerCase();
+  renderTracks(q ? allTracks.filter(t => t.title.toLowerCase().includes(ql) || (t.creator_name || '').toLowerCase().includes(ql) || (t.genre || '').toLowerCase().includes(ql) || (t.mood || '').toLowerCase().includes(ql)) : allTracks);
+}
+
+function openTrack(id) {
+  cur = allTracks.find(t => String(t.id) === String(id));
+  if (!cur) return;
+  selectedLicense = 'non-exclusive';
+  document.getElementById('mTitle').textContent = cur.title;
+  document.getElementById('mCreator').textContent = `${cur.creator_name || ''} · via ${cur.tool || ''} · ${cur.bpm || ''}`;
+  document.getElementById('mStars').textContent = starsHtml(cur.stars);
+  document.getElementById('mDesc').textContent = cur.description || '';
+  document.getElementById('pNonEx').textContent = `$${cur.price_non_exclusive}`;
+  document.getElementById('pEx').textContent = cur.price_exclusive ? `$${cur.price_exclusive}` : 'N/A';
+  document.getElementById('mTags').innerHTML = tgGenre(cur.genre) + tgMood(cur.mood) + tgScene(cur.scene) + tgVerify();
+  const lyrics = cur.lyrics || [];
+  document.getElementById('lyricsWrap').innerHTML = lyrics.map((ln, i) => {
+    if (ln.s) return `<div class="lyric-sec">${ln.s}</div>`;
+    return `<div class="lyric-ln" id="ll_${i}" onclick="jumpTo(${i})">${ln.l}</div>`;
+  }).join('');
+  stopPlayer(); prog = 0;
+  document.getElementById('pFill').style.width = '0%';
+  document.getElementById('timeLbl').textContent = '0:00 / 2:45';
+  document.getElementById('playBtn').textContent = '▶';
+  document.querySelectorAll('.lic-card').forEach((c, i) => c.classList.toggle('sel', i === 0));
+  document.getElementById('trackModal').classList.add('open');
+}
+
+function togglePlay() { playing ? stopPlayer() : startPlayer(); }
+function startPlayer() {
+  playing = true; document.getElementById('playBtn').textContent = '◉';
+  const lines = (cur.lyrics || []).filter(l => l.l); const tot = 165;
+  iv = setInterval(() => {
+    prog += 0.1; if (prog >= tot) { stopPlayer(); return; }
+    document.getElementById('pFill').style.width = ((prog / tot) * 100) + '%';
+    const m = Math.floor(prog / 60), s = Math.floor(prog % 60).toString().padStart(2, '0');
+    document.getElementById('timeLbl').textContent = `${m}:${s} / 2:45`;
+    if (lines.length) hlLine(Math.floor(prog / (tot / lines.length)));
+  }, 100);
+}
+function stopPlayer() { playing = false; clearInterval(iv); const b = document.getElementById('playBtn'); if (b) b.textContent = '▶'; }
+function hlLine(idx) {
+  document.querySelectorAll('.lyric-ln').forEach((el, i) => {
+    el.classList.remove('active', 'passed');
+    if (i < idx) el.classList.add('passed');
+    if (i === idx) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+  });
+}
+function jumpTo(idx) { const lines = (cur.lyrics || []).filter(l => l.l); prog = (idx / lines.length) * 165; }
+function seekTo(e) {
+  const r = e.currentTarget.getBoundingClientRect();
+  prog = ((e.clientX - r.left) / r.width) * 165;
+  document.getElementById('pFill').style.width = ((prog / 165) * 100) + '%';
+  const m = Math.floor(prog / 60), s = Math.floor(prog % 60).toString().padStart(2, '0');
+  document.getElementById('timeLbl').textContent = `${m}:${s} / 2:45`;
+}
+function selLic(el, type) { document.querySelectorAll('.lic-card').forEach(c => c.classList.remove('sel')); el.classList.add('sel'); selectedLicense = type; }
+
+async function saveTrack() {
+  if (!currentUser) { showToast('Sign in to save tracks.'); return; }
+  const { error } = await sb.from('saved_tracks').insert({ buyer_id: currentUser.id, track_id: String(cur.id).startsWith('demo') ? null : cur.id });
+  showToast(error ? 'Already saved.' : '✓ Saved to your library.');
+}
+
+async function purchaseLicense() {
+  if (!currentUser) { showToast('Sign in to purchase a license.'); openAuth('signin'); return; }
+  const price = selectedLicense === 'non-exclusive' ? cur.price_non_exclusive : cur.price_exclusive;
+  if (!price) { showToast('This license type is not available.'); return; }
+  showToast('✓ License request sent — creator will respond within 24h.');
+  closeModal('trackModal');
+}
+
+// ── AUTH ──
+function openAuth(mode) {
+  showAuthView(mode === 'buyer' ? 'buyer' : 'choose');
+  document.getElementById('authModal').classList.add('open');
+}
+function showAuthView(v) {
+  ['choose', 'creator', 'buyer'].forEach(id => { const el = document.getElementById('authView-' + id); if (el) el.style.display = 'none'; });
+  const target = document.getElementById('authView-' + v);
+  if (target) target.style.display = 'block';
+}
+function selectRole(role, el) {
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  setTimeout(() => showAuthView(role), 280);
+}
+
+async function signUp(role) {
+  const name = document.getElementById(role === 'creator' ? 'c-name' : 'b-name').value.trim();
+  const email = document.getElementById(role === 'creator' ? 'c-email' : 'b-email').value.trim();
+  const pass = document.getElementById(role === 'creator' ? 'c-pass' : 'b-pass').value;
+  const errEl = document.getElementById(role === 'creator' ? 'c-err' : 'b-err');
+  if (!name || !email || !pass) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  if (error) { errEl.textContent = error.message; errEl.classList.add('show'); return; }
+  const genre = role === 'creator' ? document.getElementById('c-genre').value : null;
+  const buyer_type = role === 'buyer' ? document.getElementById('b-type').value : null;
+  await sb.from('users').insert({ id: data.user.id, email, role, name, genre, buyer_type });
+  currentUser = data.user;
+  currentProfile = { role, name, genre, buyer_type };
+  closeModal('authModal');
+  updateNavForUser(role, name);
+  showPage(role === 'creator' ? 'creator-dash' : 'buyer-dash');
+  showToast(`✓ Welcome to Scored, ${name}!`);
+}
+
+async function signIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pass = document.getElementById('si-pass').value;
+  const errEl = document.getElementById('si-err');
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  currentUser = data.user;
+  await loadProfile();
+  closeModal('authModal');
+  if (currentProfile) {
+    showPage(currentProfile.role === 'creator' ? 'creator-dash' : 'buyer-dash');
+    if (currentProfile.role === 'creator') loadCreatorDash();
+    else loadBuyerDash();
+  }
+  showToast(`✓ Welcome back!`);
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null; currentProfile = null;
+  document.getElementById('navRight').innerHTML = `
+    <button class="btn-ghost" onclick="openAuth('signin')">Sign In</button>
+    <button class="btn btn-outline btn-sm" onclick="openAuth('buyer')">I'm a Buyer</button>
+    <button class="btn btn-gold btn-sm" onclick="openPitch()">Submit Track</button>`;
+  switchMainTab('catalog');
+  showToast('Signed out.');
+}
+
+function updateNavForUser(role, name) {
+  if (role === 'creator') {
+    document.getElementById('navRight').innerHTML = `
+      <span style="font-size:11px;color:var(--text3);letter-spacing:1px">${name}</span>
+      <button class="btn-ghost" onclick="showPage('creator-dash');loadCreatorDash()">Dashboard</button>
+      <button class="btn btn-gold btn-sm" onclick="openPitch()">+ Submit</button>`;
+  } else {
+    document.getElementById('navRight').innerHTML = `
+      <span style="font-size:11px;color:var(--text3);letter-spacing:1px">${name}</span>
+      <button class="btn-ghost" onclick="showPage('buyer-dash');loadBuyerDash()">My Licenses</button>
+      <button class="btn btn-gold btn-sm" onclick="switchMainTab('catalog');showPage('catalog')">Browse →</button>`;
+  }
+}
+
+async function loadCreatorDash() {
+  if (!currentUser || !currentProfile) return;
+  document.getElementById('dash-name').textContent = currentProfile.name || '';
+  const { data: myTracks } = await sb.from('tracks').select('*').eq('creator_id', currentUser.id);
+  const tracks = myTracks || [];
+  const live = tracks.filter(t => t.status === 'live').length;
+  const review = tracks.filter(t => t.status === 'review').length;
+  document.getElementById('d-live').textContent = live;
+  document.getElementById('d-review').textContent = review;
+  const { data: sales } = await sb.from('licenses').select('*,tracks(title)').eq('tracks.creator_id', currentUser.id);
+  const s = sales || [];
+  const earned = s.reduce((a, b) => a + (b.price || 0), 0);
+  document.getElementById('d-earned').textContent = `$${earned}`;
+  document.getElementById('d-sold').textContent = s.length;
+  document.getElementById('myTracks').innerHTML = tracks.length ? tracks.map(t => `
+    <div class="tmgmt-row">
+      <div><div class="tmgmt-title">${t.title}</div><div class="tmgmt-meta">${t.genre || ''} · $${t.price_non_exclusive} non-excl.</div></div>
+      <span class="status-badge ${t.status === 'live' ? 'status-live' : 'status-review'}">${t.status === 'live' ? 'Live' : 'Under Review'}</span>
+      <div style="text-align:right"><div style="font-size:11px;color:var(--text3)">${t.status === 'live' ? 'Accepting licenses' : 'Expected within 48h'}</div></div>
+      <button class="btn btn-outline btn-sm" onclick="showToast('Track management coming in v2')">Edit</button>
+    </div>`).join('') : '<div class="empty-state">No tracks submitted yet.</div>';
+}
+
+async function loadBuyerDash() {
+  if (!currentUser || !currentProfile) return;
+  document.getElementById('buyer-dash-name').textContent = currentProfile.name || '';
+  const { data: licenses } = await sb.from('licenses').select('*,tracks(title,creator_name)').eq('buyer_id', currentUser.id);
+  const l = licenses || [];
+  document.getElementById('b-licenses').textContent = l.length;
+  document.getElementById('b-spent').textContent = `$${l.reduce((a, b) => a + (b.price || 0), 0)}`;
+  const { data: saved } = await sb.from('saved_tracks').select('*,tracks(title,genre,price_non_exclusive)').eq('buyer_id', currentUser.id);
+  const sv = saved || [];
+  document.getElementById('b-saved').textContent = sv.length;
+  document.getElementById('buyer-licenses').innerHTML = l.length ? l.map(li => `
+    <div class="license-row">
+      <div><div class="sale-title">${li.tracks?.title || 'Track'}</div><div class="sale-meta">${li.license_type} · Licensed ${new Date(li.created_at).toLocaleDateString()}</div></div>
+      <span class="status-badge status-live">Active</span>
+      <div class="sale-amt">$${li.price}</div>
+      <button class="btn btn-outline btn-sm" onclick="showToast('Contract PDF coming in v2')">Contract ↓</button>
+    </div>`).join('') : '<div class="empty-state">No licenses yet.</div>';
+  document.getElementById('buyer-saved').innerHTML = sv.length ? `<div class="saved-grid">${sv.map(s => `
+    <div class="saved-card">
+      <div class="saved-title">${s.tracks?.title || 'Track'}</div>
+      <div class="saved-meta">${s.tracks?.genre || ''} · $${s.tracks?.price_non_exclusive || ''}</div>
+      <button class="btn btn-gold btn-sm" onclick="showToast('Opening track...')">License</button>
+    </div>`).join('')}</div>` : '<div class="empty-state">No saved tracks yet — browse the catalog.</div>';
+}
+
+// ── SUBMIT ──
+async function submitPitch() {
+  const title = document.getElementById('p-title').value.trim();
+  const creator = document.getElementById('p-creator').value.trim();
+  const tool = document.getElementById('p-tool').value;
+  const genre = document.getElementById('p-genre').value;
+  const copyright = document.getElementById('p-copyright').value;
+  const priceNon = parseInt(document.getElementById('p-price-non').value);
+  const errEl = document.getElementById('p-err');
+  if (!title || !creator || !tool || !genre || !copyright || !priceNon || priceNon < 50) {
+    errEl.textContent = !priceNon || priceNon < 50 ? 'Non-exclusive price must be at least $50.' : 'Please fill in all required fields.';
+    errEl.classList.add('show'); return;
+  }
+  errEl.classList.remove('show');
+  const priceEx = parseInt(document.getElementById('p-price-ex').value) || null;
+  const { error } = await sb.from('tracks').insert({
+    creator_id: currentUser?.id || null,
+    title, tool, genre,
+    mood: document.getElementById('p-mood').value || null,
+    scene: document.getElementById('p-scene').value || null,
+    copyright_basis: copyright,
+    description: document.getElementById('p-desc').value || null,
+    price_non_exclusive: priceNon,
+    price_exclusive: priceEx,
+    status: 'review',
+    bpm: null, stars: 0,
+  });
+  if (error) { errEl.textContent = 'Submission failed. Please try again.'; errEl.classList.add('show'); return; }
+  closeModal('pitchModal');
+  showToast('✓ Pitch received. Editorial review within 48h.');
+}
+
+async function submitCollab() {
+  const type = document.getElementById('col-type').value;
+  const title = document.getElementById('col-title').value.trim();
+  const genre = document.getElementById('col-genre').value;
+  const desc = document.getElementById('col-desc').value.trim();
+  const errEl = document.getElementById('col-err');
+  if (!type || !title || !genre || !desc) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+  const { error } = await sb.from('collab_requests').insert({
+    user_id: currentUser?.id || null,
+    request_type: type, title, genre,
+    mood: null,
+    split: document.getElementById('col-split').value || null,
+    description: desc,
+    contact: document.getElementById('col-contact').value || null,
+  });
+  if (error) { errEl.textContent = 'Failed to post. Please try again.'; errEl.classList.add('show'); return; }
+  closeModal('collabModal');
+  await loadCollabs();
+  showToast('✓ Collab request posted.');
+}
+
+// ── NAV ──
+function switchMainTab(t) {
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('ntab-' + t).classList.add('active');
+  showPage(t);
+}
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) el.classList.add('active');
+}
+function goHome() { switchMainTab('catalog'); }
+function switchBuyerTab(el, tab) {
+  document.querySelectorAll('.buyer-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('buyer-saved').style.display = tab === 'saved' ? 'block' : 'none';
+  document.getElementById('buyer-licenses').style.display = tab === 'licenses' ? 'block' : 'none';
+}
+function openPitch() { document.getElementById('pitchModal').classList.add('open'); }
+function openCollabPost() { document.getElementById('collabModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); if (id === 'trackModal') stopPlayer(); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+document.querySelectorAll('.overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('open'); stopPlayer(); } }); });
+
+init();
+</script>
+</body>
+</html>
