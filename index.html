@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,24 +17,24 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;font-size:16px}
 
 nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(9,9,31,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
 .logo{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--gold);cursor:pointer}
 .nav-center{display:flex;gap:0}
-.nav-tab{padding:8px 24px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Jost',sans-serif}
+.nav-tab{padding:10px 24px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Jost',sans-serif}
 .nav-tab:hover{color:var(--text2)}
 .nav-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .nav-right{display:flex;gap:10px;align-items:center}
 
-.btn{padding:9px 22px;font-family:'Jost',sans-serif;font-size:10px;font-weight:400;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;border:none}
+.btn{padding:11px 24px;font-family:'Jost',sans-serif;font-size:12px;font-weight:400;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all 0.22s;border:none}
 .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text2)}
 .btn-outline:hover{border-color:var(--gold);color:var(--gold)}
 .btn-gold{background:var(--gold);color:var(--bg);font-weight:500}
 .btn-gold:hover{background:var(--gold2)}
-.btn-ghost{background:transparent;border:none;color:var(--text3);font-family:'Jost',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;padding:9px 16px;transition:color 0.2s}
+.btn-ghost{background:transparent;border:none;color:var(--text3);font-family:'Jost',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:9px 16px;transition:color 0.2s}
 .btn-ghost:hover{color:var(--text)}
-.btn-sm{padding:7px 14px;font-size:9px;letter-spacing:1.5px}
+.btn-sm{padding:8px 16px;font-size:11px;letter-spacing:1.2px}
 
 .page{display:none}
 .page.active{display:block}
@@ -42,46 +43,46 @@ nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-co
 .hero-glow{position:absolute;top:-200px;right:-100px;width:700px;height:700px;background:radial-gradient(circle at 60% 40%,rgba(200,168,75,0.05) 0%,rgba(80,80,200,0.04) 40%,transparent 70%);pointer-events:none}
 .eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:28px}
 .ey-rule{width:28px;height:1px;background:var(--gold);opacity:0.5}
-.ey-txt{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
+.ey-txt{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
 h1.hero-h{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,7vw,82px);font-weight:300;line-height:1.05;letter-spacing:-1px;max-width:760px;margin-bottom:24px}
 h1.hero-h em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:15px;color:var(--text2);font-weight:300;max-width:500px;line-height:1.8;margin-bottom:40px}
+.hero-sub{font-size:17px;color:var(--text2);font-weight:300;max-width:500px;line-height:1.8;margin-bottom:40px}
 .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:68px}
 .hero-stats{display:flex;gap:52px;padding-top:32px;border-top:1px solid var(--border)}
 .stat-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:var(--gold);line-height:1}
-.stat-key{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:5px}
+.stat-key{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-top:5px}
 
 .section{padding:56px 48px}
 .sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:32px}
 .sec-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;letter-spacing:-0.5px}
 
 .search-wrap{display:flex;gap:10px;margin-bottom:16px}
-.search-inp{flex:1;background:var(--bg2);border:1px solid var(--border);padding:12px 18px;color:var(--text);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;transition:border-color 0.2s}
+.search-inp{flex:1;background:var(--bg2);border:1px solid var(--border);padding:14px 18px;color:var(--text);font-family:'Jost',sans-serif;font-size:15px;font-weight:300;outline:none;transition:border-color 0.2s}
 .search-inp:focus{border-color:var(--border2)}
 .search-inp::placeholder{color:var(--text3)}
 .filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
-.chip{padding:6px 15px;border:1px solid var(--border);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);cursor:pointer;transition:all 0.2s;background:transparent;font-family:'Jost',sans-serif}
+.chip{padding:8px 18px;border:1px solid var(--border);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);cursor:pointer;transition:all 0.2s;background:transparent;font-family:'Jost',sans-serif}
 .chip:hover,.chip.active{border-color:var(--gold);color:var(--gold);background:var(--gold3)}
 
 .track-list{display:flex;flex-direction:column;gap:1px}
 .track{display:grid;grid-template-columns:44px 1fr auto auto auto;align-items:center;gap:18px;padding:17px 20px;background:var(--bg2);border:1px solid transparent;cursor:pointer;transition:all 0.17s}
 .track:hover{background:var(--surface);border-color:var(--border)}
-.track-idx{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--text3);text-align:center;position:relative;min-width:24px}
+.track-idx{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--text3);text-align:center;position:relative;min-width:24px}
 .track-num{transition:opacity 0.15s}
-.track-arrow{display:none;color:var(--gold);font-size:12px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+.track-arrow{display:none;color:var(--gold);font-size:13px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 .track:hover .track-num{opacity:0}
 .track:hover .track-arrow{display:block}
-.t-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;margin-bottom:3px}
-.t-meta{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.t-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:400;margin-bottom:4px}
+.t-meta{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--text3)}
 .track-tags{display:flex;gap:5px;flex-wrap:wrap}
-.tag{padding:3px 9px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase}
+.tag{padding:4px 11px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
 .tag-genre{border:1px solid rgba(200,168,75,0.2);color:var(--gold)}
 .tag-mood{border:1px solid rgba(107,138,224,0.3);color:var(--blue)}
 .tag-scene{border:1px solid rgba(80,170,120,0.3);color:var(--green)}
 .tag-verify{background:var(--gold3);border:1px solid rgba(200,168,75,0.2);color:var(--gold)}
-.stars{color:var(--gold);font-size:10px;letter-spacing:1px;margin-bottom:2px}
-.t-price{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:var(--gold);text-align:right}
-.t-price-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);text-align:right}
+.stars{color:var(--gold);font-size:12px;letter-spacing:1px;margin-bottom:2px}
+.t-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--gold);text-align:right}
+.t-price-lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);text-align:right}
 
 .collab-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
 .collab-card{background:var(--bg2);border:1px solid transparent;padding:26px;transition:all 0.2s}
@@ -196,15 +197,15 @@ h1.hero-h em{font-style:italic;color:var(--gold)}
 .lic-desc{font-size:11px;color:var(--text3);line-height:1.6;font-weight:300}
 
 .form-group{margin-bottom:16px}
-.form-lbl{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.form-lbl{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
 .form-req{color:var(--gold)}
-.form-inp,.form-sel,.form-ta{width:100%;background:var(--bg3);border:1px solid var(--border);padding:11px 15px;color:var(--text);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;outline:none;transition:border-color 0.2s}
+.form-inp,.form-sel,.form-ta{width:100%;background:var(--bg3);border:1px solid var(--border);padding:13px 16px;color:var(--text);font-family:'Jost',sans-serif;font-size:15px;font-weight:300;outline:none;transition:border-color 0.2s}
 .form-inp:focus,.form-sel:focus,.form-ta:focus{border-color:var(--border2)}
 .form-sel{appearance:none;cursor:pointer}
-.form-ta{resize:vertical;min-height:72px;line-height:1.6}
+.form-ta{resize:vertical;min-height:80px;line-height:1.6}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-hint{font-size:10px;color:var(--text3);margin-top:5px}
-.form-err{font-size:10px;color:var(--red);margin-top:5px;display:none}
+.form-hint{font-size:12px;color:var(--text3);margin-top:5px}
+.form-err{font-size:12px;color:var(--red);margin-top:5px;display:none}
 .form-err.show{display:block}
 .up-zone{border:1px dashed var(--border2);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--bg3)}
 .up-zone:hover{border-color:var(--gold);background:var(--gold3)}
@@ -486,10 +487,11 @@ footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;justify
 
 <!-- PITCH MODAL -->
 <div class="overlay" id="pitchModal">
-  <div class="modal" style="max-width:540px">
+  <div class="modal" style="max-width:560px">
     <button class="modal-x" onclick="closeModal('pitchModal')">✕</button>
     <div class="eyebrow" style="margin-bottom:8px"><div class="ey-rule"></div><div class="ey-txt">Submit Track</div></div>
     <div class="modal-title" style="font-size:26px;margin-bottom:24px">Pitch Your Music</div>
+
     <div class="form-group"><label class="form-lbl">Track Title <span class="form-req">*</span></label><input class="form-inp" id="p-title" placeholder="Name your track"></div>
     <div class="form-row">
       <div class="form-group"><label class="form-lbl">Creator Name <span class="form-req">*</span></label><input class="form-inp" id="p-creator" placeholder="Stage name / alias"></div>
@@ -497,19 +499,40 @@ footer{border-top:1px solid var(--border);padding:26px 48px;display:flex;justify
     </div>
     <div class="form-group"><label class="form-lbl">Genre <span class="form-req">*</span></label><select class="form-sel" id="p-genre"><option value="">Select primary genre</option><option>Electronic</option><option>Rock</option><option>Folk / Acoustic</option><option>Hip-Hop / Rap</option><option>R&B / Soul</option><option>Classical / Orchestral</option><option>Jazz</option><option>Pop</option><option>World Music</option><option>Chinese Folk / 古风</option><option>Other</option></select></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-lbl">Mood <span style="color:var(--text3);font-size:8px">Optional</span></label><select class="form-sel" id="p-mood"><option value="">Select mood</option><option>Dark / Tense</option><option>Uplifting / Epic</option><option>Melancholic</option><option>Playful</option><option>Romantic</option><option>Aggressive</option><option>Peaceful</option></select></div>
-      <div class="form-group"><label class="form-lbl">Scene <span style="color:var(--text3);font-size:8px">Optional</span></label><select class="form-sel" id="p-scene"><option value="">Select scene</option><option>Cinematic / Film</option><option>Game / Interactive</option><option>Animation</option><option>Brand / Commercial</option><option>Trailer / Promo</option></select></div>
+      <div class="form-group"><label class="form-lbl">Mood <span style="color:var(--text3);font-size:10px">Optional</span></label><select class="form-sel" id="p-mood"><option value="">Select mood</option><option>Dark / Tense</option><option>Uplifting / Epic</option><option>Melancholic</option><option>Playful</option><option>Romantic</option><option>Aggressive</option><option>Peaceful</option></select></div>
+      <div class="form-group"><label class="form-lbl">Scene <span style="color:var(--text3);font-size:10px">Optional</span></label><select class="form-sel" id="p-scene"><option value="">Select scene</option><option>Cinematic / Film</option><option>Game / Interactive</option><option>Animation</option><option>Brand / Commercial</option><option>Trailer / Promo</option></select></div>
     </div>
     <div class="form-group">
       <label class="form-lbl">Copyright Basis <span class="form-req">*</span></label>
       <select class="form-sel" id="p-copyright"><option value="">Select — at least one required</option><option>Lyrics are my original human-authored work</option><option>Composition / melody is my original human-authored work</option><option>Both lyrics and composition are my original work</option></select>
-      <div class="form-hint">Either lyrics or composition must be your original work.</div>
+      <div class="form-hint">Either lyrics or composition must be your original work. Both is a plus.</div>
     </div>
-    <div class="form-group"><label class="form-lbl">Copyright Proof Screenshot <span class="form-req">*</span></label><div class="up-zone" onclick="showToast('File upload coming in v2 — email pitch@scored.fm for now')"><div class="up-zone-lbl">Click to upload screenshot</div><div class="up-zone-hint">Suno / Udio creation page · max 5MB</div></div></div>
-    <div class="form-group"><label class="form-lbl">Scene Description <span style="color:var(--text3);font-size:8px">Optional</span></label><textarea class="form-ta" id="p-desc" placeholder="Describe the ideal placement for this track..."></textarea></div>
+
+    <div class="form-group">
+      <label class="form-lbl">Song Link <span class="form-req">*</span></label>
+      <input class="form-inp" id="p-link" placeholder="Suno / Udio share link, SoundCloud, or any preview URL">
+      <div class="form-hint">Buyers will use this to preview your track.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-lbl">Copyright Proof Screenshot <span class="form-req">*</span></label>
+      <div class="up-zone" onclick="document.getElementById('p-screenshot').click()">
+        <input type="file" id="p-screenshot" accept="image/*" style="display:none" onchange="handleScreenshot(this)">
+        <div class="up-zone-lbl" id="screenshot-lbl">Click to upload screenshot</div>
+        <div class="up-zone-hint" id="screenshot-hint">Suno / Udio creation page · JPG / PNG · max 5MB</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-lbl">Lyrics <span style="color:var(--text3);font-size:10px">Optional but recommended</span></label>
+      <textarea class="form-ta" id="p-lyrics" style="min-height:120px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.8" placeholder="Paste your lyrics here — displayed to buyers in the track detail view..."></textarea>
+    </div>
+
+    <div class="form-group"><label class="form-lbl">Scene Description <span style="color:var(--text3);font-size:10px">Optional</span></label><textarea class="form-ta" id="p-desc" placeholder="Describe the ideal placement for this track..."></textarea></div>
+
     <div class="form-row">
-      <div class="form-group"><label class="form-lbl">Non-Exclusive Price (USD) <span class="form-req">*</span></label><input class="form-inp" type="number" id="p-price-non" placeholder="Min. $50"><div class="form-hint">Minimum $50</div></div>
-      <div class="form-group"><label class="form-lbl">Exclusive Price (USD)</label><input class="form-inp" type="number" id="p-price-ex" placeholder="Min. $299"><div class="form-hint">Optional. Min. $299.</div></div>
+      <div class="form-group"><label class="form-lbl">Non-Exclusive Price (USD) <span class="form-req">*</span></label><input class="form-inp" type="number" id="p-price-non" placeholder="Min. $50"><div class="form-hint">Minimum $50 · Suggested: $50–$299</div></div>
+      <div class="form-group"><label class="form-lbl">Exclusive Price (USD) <span style="color:var(--text3);font-size:10px">Optional</span></label><input class="form-inp" type="number" id="p-price-ex" placeholder="Min. $299"><div class="form-hint">Leave blank if not offering.</div></div>
     </div>
     <div class="form-err" id="p-err">Please fill in all required fields.</div>
     <div class="modal-foot">
@@ -853,20 +876,39 @@ async function loadBuyerDash() {
 }
 
 // ── SUBMIT ──
+function handleScreenshot(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('File too large — max 5MB.'); return; }
+  document.getElementById('screenshot-lbl').textContent = '✓ ' + file.name;
+  document.getElementById('screenshot-hint').textContent = (file.size / 1024).toFixed(0) + ' KB · Ready to submit';
+  document.getElementById('screenshot-hint').style.color = 'var(--green)';
+}
+
 async function submitPitch() {
   const title = document.getElementById('p-title').value.trim();
   const creator = document.getElementById('p-creator').value.trim();
   const tool = document.getElementById('p-tool').value;
   const genre = document.getElementById('p-genre').value;
   const copyright = document.getElementById('p-copyright').value;
+  const link = document.getElementById('p-link').value.trim();
   const priceNon = parseInt(document.getElementById('p-price-non').value);
   const errEl = document.getElementById('p-err');
-  if (!title || !creator || !tool || !genre || !copyright || !priceNon || priceNon < 50) {
-    errEl.textContent = !priceNon || priceNon < 50 ? 'Non-exclusive price must be at least $50.' : 'Please fill in all required fields.';
+
+  if (!title || !creator || !tool || !genre || !copyright || !link) {
+    errEl.textContent = 'Please fill in all required fields.';
+    errEl.classList.add('show'); return;
+  }
+  if (!priceNon || priceNon < 50) {
+    errEl.textContent = 'Non-exclusive price must be at least $50.';
     errEl.classList.add('show'); return;
   }
   errEl.classList.remove('show');
+
   const priceEx = parseInt(document.getElementById('p-price-ex').value) || null;
+  const lyricsRaw = document.getElementById('p-lyrics').value.trim();
+  const lyricsJson = lyricsRaw ? parseLyrics(lyricsRaw) : null;
+
   const { error } = await sb.from('tracks').insert({
     creator_id: currentUser?.id || null,
     title, tool, genre,
@@ -878,10 +920,31 @@ async function submitPitch() {
     price_exclusive: priceEx,
     status: 'review',
     bpm: null, stars: 0,
+    lyrics: lyricsJson,
   });
-  if (error) { errEl.textContent = 'Submission failed. Please try again.'; errEl.classList.add('show'); return; }
+
+  if (error) {
+    errEl.textContent = 'Submission failed: ' + error.message;
+    errEl.classList.add('show'); return;
+  }
   closeModal('pitchModal');
   showToast('✓ Pitch received. Editorial review within 48h.');
+
+  // reset form
+  ['p-title','p-creator','p-link','p-lyrics','p-desc','p-price-non','p-price-ex'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  ['p-tool','p-genre','p-mood','p-scene','p-copyright'].forEach(id => { const el = document.getElementById(id); if(el) el.selectedIndex = 0; });
+  document.getElementById('screenshot-lbl').textContent = 'Click to upload screenshot';
+  document.getElementById('screenshot-hint').textContent = 'Suno / Udio creation page · JPG / PNG · max 5MB';
+  document.getElementById('screenshot-hint').style.color = '';
+}
+
+function parseLyrics(raw) {
+  return raw.split('\n').map(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) return { s: trimmed };
+    return { l: trimmed };
+  }).filter(Boolean);
 }
 
 async function submitCollab() {
